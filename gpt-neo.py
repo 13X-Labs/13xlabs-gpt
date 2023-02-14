@@ -13,6 +13,12 @@ model_path = "EleutherAI/gpt-neo-125M"
 tokenizer = GPT2Tokenizer.from_pretrained(model_path)
 model = GPTNeoForCausalLM.from_pretrained(model_path)
 
+# Calculate the attention mask function.
+def create_attention_mask(input_ids):
+    mask = tf.cast(tf.math.not_equal(input_ids, 0), tf.int32)
+    attention_mask = tf.math.reduce_sum(mask, axis=-1)
+    return attention_mask
+
 # Define an API endpoint.
 @app.route('/api/complete', methods=['POST'])
 def complete():
@@ -21,12 +27,16 @@ def complete():
     length = data.get('length', 100)
     temperature = data.get('temperature', 0.5)
 
-    # Convert the prompt to a digital tokenized message.
+     # Convert the prompt to a digital tokenized message.
     input_ids = tokenizer.encode(prompt, return_tensors='tf')
+
+    # Calculate the attention mask.
+    attention_mask = create_attention_mask(input_ids)
 
     # Use the GPT-Neo model to complete the text.
     output = model.generate(
         input_ids=input_ids,
+        attention_mask=attention_mask,
         max_length=length + len(input_ids[0]),
         temperature=temperature,
         do_sample=True,
