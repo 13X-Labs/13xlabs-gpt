@@ -1,40 +1,50 @@
-from flask import Flask, request, jsonify
-from decouple import config
-import openai
+import time
 import tensorflow as tf
+from transformers import AutoTokenizer, TFAutoModelForCausalLM
+from flask import Flask, request, jsonify
 
-# Declare Flask application
+# Declare a Flask application.
 app = Flask(__name__)
 
-# Set OpenAI API key
-openai.api_key = config('OPENAI_API_KEY')
+# Path Models GPT-3
+model_name = "gpt2-xl"
 
-# Path to GPT-2 model
-model_path = "data/small-117M"
+# Initialize a tokenizer and GPT-2 model.
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = TFAutoModelForCausalLM.from_pretrained(model_name)
 
-# Load GPT-2 model
-model = tf.saved_model.load(model_path)
-
-# Define input and output tensors
-input_text = model.signatures["serving_default"].inputs[0]
-output = model.signatures["serving_default"].outputs["output_0"]
-
-# Define API endpoint
+# Define an API endpoint.
 @app.route('/api/complete', methods=['POST'])
 def complete():
     data = request.get_json()
     prompt = data['prompt']
     length = data.get('length', 100)
-    temperature = data.get('temperature', 0.5)
+    temperature = data.get('temperature', 0.7)
 
-	# Use GPT-2 model to generate text
-    output_text = model(input_text=tf.constant([prompt]), length=tf.constant(length), temperature=tf.constant(temperature))["output_0"].numpy()[0].decode('utf-8')
+    # Convert the prompt to a digital tokenized message.
+    input_ids = tokenizer.encode(prompt, return_tensors='tf')
 
-	# Return generated text as JSON
+    # Use the GPT-2 model to complete the text
+    start_time = time.time()
+    output = model.generate(
+        input_ids=input_ids,
+        max_length=length + len(input_ids[0]),
+        temperature=temperature,
+        do_sample=True,
+        top_p=0.9,
+        top_k=0
+    )
+    elapsed_time = time.time() - start_time
+
+    # Convert the output from the tokenized message back to text.
+    output_text = tokenizer.decode(output[0], skip_special_tokens=True)
+
+    # Return the completed text as a JSON result.
     return jsonify({
-        "output": output_text
+        "output": output_text,
+        "elapsed_time": elapsed_time
     })
 
-# Start the application
+# Launch the application.
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

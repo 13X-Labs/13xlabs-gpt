@@ -8,3 +8,9 @@ models/
 
 # data
 data/
+
+__pycache__/
+
+test/node_modules/
+
+node_modules/
