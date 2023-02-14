@@ -1,8 +1,8 @@
 const axios = require('axios');
 
 const data = {
-  prompt: 'Vietnam là nước nào ?',
-  length: 50,
+  prompt: 'Vietnam is a',
+  length: 500,
   temperature: 0.5,
 };
 
