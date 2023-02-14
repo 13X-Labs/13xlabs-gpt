@@ -1,0 +1,16 @@
+# local env files
+
+.env*.local
+.env
+
+# models
+models/
+
+# data
+data/
+
+__pycache__/
+
+test/node_modules/
+
+node_modules/
