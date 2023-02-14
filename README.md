@@ -1,4 +1,4 @@
-# 13XLabs Research
+# 13XLabs GPT-2
 
 ## Introduce GPT-2
 GPT-2 is a natural language processing technology developed by OpenAI and has some free applications, including:
