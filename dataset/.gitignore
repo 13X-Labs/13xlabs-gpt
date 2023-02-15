@@ -12,3 +12,6 @@ data/
 __pycache__/
 
 gpt2-gerchef/
+
+cached_lm_GPT2TokenizerFast_128_small.test.jsonl
+cached_lm_GPT2TokenizerFast_128_small.train.jsonl
