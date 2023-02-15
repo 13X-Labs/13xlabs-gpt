@@ -1,0 +1,14 @@
+# local env files
+
+.env*.local
+.env
+
+# models
+models/
+
+# data
+data/
+
+__pycache__/
+
+gpt2-gerchef/
